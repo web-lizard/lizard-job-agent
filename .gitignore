@@ -1,0 +1,9 @@
+node_modules/
+dist/
+web-ext-artifacts/
+*.xpi
+*.zip
+profile.local.json
+.DS_Store
+coverage/
+

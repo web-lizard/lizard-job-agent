@@ -1,0 +1,57 @@
+{
+  "personal": {
+    "firstName": "Алексей",
+    "lastName": "Примеров",
+    "middleName": "",
+    "birthDate": "1990-01-01",
+    "email": "alexey@example.test",
+    "phone": "+7 900 000-00-00",
+    "city": "Москва",
+    "citizenship": "Россия",
+    "relocation": false,
+    "remoteWork": true,
+    "businessTrips": true
+  },
+  "target": {
+    "position": "Fullstack-разработчик",
+    "salary": 150000,
+    "currency": "RUB",
+    "employmentTypes": ["Полная занятость"],
+    "workFormats": ["Удалённо"]
+  },
+  "summary": "Разрабатываю веб-приложения и интеграции.",
+  "skills": ["TypeScript", "Vue.js", "PHP"],
+  "experience": [
+    {
+      "company": "Example Company",
+      "position": "Fullstack-разработчик",
+      "city": "Москва",
+      "website": "https://example.test",
+      "industry": "Информационные технологии",
+      "startMonth": 1,
+      "startYear": 2022,
+      "endMonth": 12,
+      "endYear": 2024,
+      "currentlyWorking": false,
+      "description": "Разрабатывал и поддерживал веб-приложения."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Примерный университет",
+      "specialization": "Информационные технологии",
+      "degree": "Высшее",
+      "graduationYear": 2012
+    }
+  ],
+  "languages": [
+    {
+      "name": "Русский",
+      "level": "Родной"
+    }
+  ],
+  "links": {
+    "github": "https://github.com/example"
+  }
+}
+

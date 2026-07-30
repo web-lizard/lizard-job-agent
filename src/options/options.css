@@ -1,0 +1,161 @@
+.options-shell {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 36px 0 70px;
+}
+
+.options-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand img {
+  width: 64px;
+  height: 64px;
+}
+
+.brand h1 {
+  margin: 0 0 4px;
+  font-size: clamp(25px, 4vw, 38px);
+  letter-spacing: -0.04em;
+}
+
+.brand p {
+  margin: 0;
+  color: #99a69c;
+}
+
+.completion {
+  min-width: 220px;
+  border: 1px solid #354339;
+  border-radius: 16px;
+  padding: 13px 15px;
+  background: rgba(25, 34, 28, 0.9);
+}
+
+.completion__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.completion__bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 100px;
+  background: #2b352e;
+}
+
+.completion__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6bc711, #b6ff4d);
+  transition: width 200ms ease;
+}
+
+.save-state {
+  margin-top: 7px;
+  color: #9eaaa0;
+  font-size: 12px;
+}
+
+.section {
+  margin-top: 16px;
+  border: 1px solid #2d3a31;
+  border-radius: 18px;
+  padding: 20px;
+  background: rgba(23, 31, 26, 0.9);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16);
+}
+
+.section h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.section h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.section__head,
+.card__head,
+.import-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cards {
+  display: grid;
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid #344137;
+  border-radius: 14px;
+  padding: 15px;
+  background: #121915;
+}
+
+.card__head {
+  margin-bottom: 14px;
+}
+
+.card__actions {
+  display: flex;
+  gap: 7px;
+}
+
+.icon-button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #354338;
+  border-radius: 9px;
+  color: #dce6db;
+  background: #1b251e;
+}
+
+.icon-button:disabled {
+  opacity: 0.35;
+}
+
+.icon-button--danger {
+  color: #ff98a6;
+}
+
+.empty-state {
+  border: 1px dashed #405045;
+  border-radius: 13px;
+  padding: 20px;
+  text-align: center;
+  color: #9eaaa0;
+}
+
+.status-message {
+  margin: 12px 0 0;
+  color: #b9ff68;
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .options-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
