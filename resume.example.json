@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "candidate": {
+    "fullName": "Иванов Иван Иванович",
+    "firstName": "Иван",
+    "lastName": "Иванов",
+    "middleName": "Иванович",
+    "city": "Москва",
+    "metro": "Метро",
+    "phone": "+7 (000) 000-00-00",
+    "email": "example@example.test",
+    "github": "https://github.com/example"
+  },
+  "target": {
+    "primaryPosition": "Fullstack-разработчик",
+    "specialization": "PHP / Vue / Nuxt",
+    "alternativePositions": [
+      "PHP-разработчик",
+      "Fullstack PHP-разработчик",
+      "Backend PHP-разработчик",
+      "Frontend Vue-разработчик",
+      "Web-разработчик"
+    ],
+    "desiredSalaryRubNet": 130000,
+    "salaryComment": "130 000 рублей на руки. Условия можно обсуждать в зависимости от задач, оформления и формата работы.",
+    "employmentTypes": [
+      "полная занятость",
+      "частичная занятость",
+      "проектная работа"
+    ],
+    "workFormats": [
+      "удалённая работа",
+      "гибрид",
+      "офис при разумной транспортной доступности"
+    ],
+    "relocation": false,
+    "businessTrips": true,
+    "availableSoon": true
+  },
+  "summary": {
+    "commercialExperienceYears": 13,
+    "commercialExperienceText": "Более 13 лет коммерческой веб-разработки.",
+    "short": "Fullstack-разработчик с более чем 13-летним опытом коммерческой веб-разработки.",
+    "detailed": "Основное направление работы: коммерческая веб-разработка на PHP и JavaScript."
+  },
+  "experienceProfile": {
+    "primary": [
+      {
+        "skill": "PHP",
+        "level": "strong",
+        "experience": "Основной язык коммерческой серверной веб-разработки."
+      },
+      {
+        "skill": "WordPress",
+        "level": "strong",
+        "experience": "Разработка, доработка и поддержка коммерческих сайтов."
+      },
+      {
+        "skill": "WooCommerce",
+        "level": "strong",
+        "experience": "Разработка и доработка интернет-магазинов."
+      },
+      {
+        "skill": "1С-Битрикс",
+        "level": "commercial",
+        "experience": "Поддержка и развитие коммерческих веб-проектов."
+      },
+      {
+        "skill": "JavaScript",
+        "level": "strong",
+        "experience": "Клиентская логика, интерфейсы и интеграция frontend с backend."
+      },
+      {
+        "skill": "Vue 3",
+        "level": "commercial",
+        "experience": "Разработка современных пользовательских интерфейсов."
+      },
+      {
+        "skill": "Nuxt",
+        "level": "commercial",
+        "experience": "Разработка приложений и интерфейсов на базе Vue."
+      },
+      {
+        "skill": "REST API",
+        "level": "commercial",
+        "experience": "Разработка и подключение API."
+      },
+      {
+        "skill": "HTML",
+        "level": "strong",
+        "experience": "Многолетний опыт адаптивной вёрстки."
+      },
+      {
+        "skill": "CSS",
+        "level": "strong",
+        "experience": "Адаптивная вёрстка и стилизация."
+      },
+      {
+        "skill": "Git",
+        "level": "working",
+        "experience": "Регулярная работа с репозиториями."
+      }
+    ],
+    "workingKnowledge": [
+      {
+        "skill": "TypeScript",
+        "level": "working",
+        "experience": "Используется в современных frontend-проектах."
+      },
+      {
+        "skill": "Python",
+        "level": "working",
+        "experience": "Используется для собственных приложений и автоматизации."
+      },
+      {
+        "skill": "FastAPI",
+        "level": "working",
+        "experience": "Используется в собственных проектах."
+      },
+      {
+        "skill": "Docker",
+        "level": "working",
+        "experience": "Используется для локальной разработки."
+      },
+      {
+        "skill": "WSL2",
+        "level": "working",
+        "experience": "Используется как среда разработки в Windows."
+      },
+      {
+        "skill": "AI-assisted development",
+        "level": "working",
+        "experience": "Использование ИИ-инструментов с ручной проверкой результата."
+      }
+    ],
+    "limitedOrLearning": [
+      {
+        "skill": "Laravel",
+        "level": "basic",
+        "experience": "Есть практическое знакомство и работа с тестовыми проектами."
+      },
+      {
+        "skill": "Next.js",
+        "level": "basic",
+        "experience": "Есть опыт работы с отдельным тестовым проектом."
+      },
+      {
+        "skill": "DevOps",
+        "level": "not_primary",
+        "experience": "Кандидат не позиционирует себя как DevOps-инженер."
+      },
+      {
+        "skill": "Machine Learning",
+        "level": "not_claimed",
+        "experience": "Кандидат не должен представляться ML-инженером."
+      }
+    ]
+  },
+  "commercialProjectTypes": [
+    "интернет-магазины",
+    "корпоративные сайты",
+    "B2B-кабинеты",
+    "интеграции с внешними сервисами",
+    "REST API",
+    "поддержка и развитие существующих проектов",
+    "адаптивная вёрстка",
+    "серверная логика на PHP",
+    "интерфейсы на JavaScript, Vue и Nuxt"
+  ],
+  "professionalStrengths": [
+    "Большой практический опыт поддержки и развития реальных коммерческих веб-проектов.",
+    "Способность разбираться в существующем и legacy-коде.",
+    "Опыт работы одновременно с backend и frontend.",
+    "Понимание полного цикла работы веб-приложения."
+  ],
+  "personalProjects": [
+    {
+      "name": "Пример проекта",
+      "type": "личный проект",
+      "description": "Пример личного проекта.",
+      "technologies": [
+        "Vue",
+        "Python"
+      ],
+      "usageRule": "Использовать как пример личного проекта."
+    }
+  ],
+  "answerConstraints": {
+    "language": "ru",
+    "tone": "деловой, спокойный, прямой",
+    "defaultLength": "короткий",
+    "noLongDash": true,
+    "noExaggeration": true,
+    "noInventedExperience": true,
+    "noInventedMetrics": true,
+    "noInventedEducation": true,
+    "noInventedEnglishLevel": true,
+    "noInventedTechnologyYears": true,
+    "forbiddenPhrases": [
+      "я умею всё",
+      "идеально подхожу",
+      "эксперт во всех областях",
+      "уникальный специалист",
+      "гуру",
+      "рок-звезда разработки"
+    ]
+  },
+  "manualOrUnknownFields": [
+    "точный уровень английского языка",
+    "образование",
+    "гражданство",
+    "разрешение на работу",
+    "дата рождения",
+    "семейное положение",
+    "воинская обязанность",
+    "точная дата возможного выхода",
+    "точное число лет по каждой отдельной технологии",
+    "конкретные названия бывших работодателей",
+    "точные показатели роста продаж, конверсии или производительности",
+    "любые юридические согласия",
+    "согласие на обработку данных",
+    "подтверждение достоверности юридически значимых сведений"
+  ],
+  "canonicalAnswers": {
+    "about": "Я fullstack-разработчик с более чем 13-летним опытом коммерческой веб-разработки. Основной стек: PHP, WordPress, WooCommerce, 1С-Битрикс, JavaScript, Vue и Nuxt.",
+    "github": "Примеры кода и личных проектов доступны на GitHub: https://github.com/example",
+    "salary": "Ориентир по доходу: 130 000 рублей на руки. Готов обсудить условия в зависимости от задач, оформления и формата работы.",
+    "workFormat": "Рассматриваю удалённую работу, гибрид и офис при разумной транспортной доступности.",
+    "relocation": "К переезду не готов.",
+    "businessTrips": "К командировкам готов.",
+    "whyLooking": "Ищу долгосрочную позицию с понятными задачами, прозрачным оформлением и возможностью полноценно применять опыт backend и frontend-разработки.",
+    "laravel": "Есть практическое знакомство с Laravel и опыт работы с тестовыми проектами. Большой многолетний коммерческий опыт именно с Laravel не заявляю.",
+    "python": "Python использую в собственных приложениях, автоматизации и backend-сервисах на FastAPI. Основным многолетним коммерческим стеком остаётся PHP.",
+    "vue": "Использую Vue для разработки современных интерактивных интерфейсов и связи frontend с API.",
+    "nuxt": "Есть практический опыт разработки приложений на Nuxt в составе современного frontend-стека.",
+    "docker": "Docker использую как рабочий инструмент локальной разработки и запуска проектов. На позицию DevOps-инженера не претендую.",
+    "ai": "Использую ChatGPT, DeepSeek и coding agents для анализа, прототипирования, генерации и ревизии кода. Результат проверяю вручную и довожу до рабочего состояния.",
+    "start": "Готов обсуждать выход в ближайшее время."
+  }
+}
