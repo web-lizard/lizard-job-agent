@@ -43,7 +43,7 @@ async function importFile(event: Event): Promise<void> {
 }
 
 function clear(): void {
-  if (window.confirm("Очистить весь локальный профиль? Отменить это действие нельзя.")) {
+  if (window.confirm("Очистить профиль и текст резюме? API-ключ DeepSeek останется и удаляется отдельно в блоке ИИ-агента.")) {
     emit("clear");
     message.value = "Профиль очищен.";
   }
@@ -62,9 +62,8 @@ function clear(): void {
         <button class="button" type="button" @click="fileInput?.click()">Импортировать JSON</button>
         <input ref="fileInput" hidden type="file" accept="application/json,.json" @change="importFile" />
       </div>
-      <button class="button button--danger" type="button" @click="clear">Очистить профиль</button>
+      <button class="button button--danger" type="button" @click="clear">Очистить резюме</button>
     </div>
     <p v-if="message" class="status-message">{{ message }}</p>
   </section>
 </template>
-

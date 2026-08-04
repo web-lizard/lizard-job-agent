@@ -4,7 +4,11 @@ import { zipSync } from "fflate";
 
 const source = resolve("dist");
 const outputDirectory = resolve("web-ext-artifacts");
-const output = join(outputDirectory, "lizard_job_agent-0.1.0.zip");
+const packageJson = JSON.parse(readFileSync(resolve("package.json"), "utf8"));
+const output = join(
+  outputDirectory,
+  `lizard_job_agent-${packageJson.version}.zip`,
+);
 const files = {};
 
 function collect(directory) {
@@ -22,4 +26,4 @@ function collect(directory) {
 collect(source);
 mkdirSync(outputDirectory, { recursive: true });
 writeFileSync(output, zipSync(files, { level: 9 }));
-console.log(`Extension package created: ${output}`);
+console.log(`Архив расширения создан: ${output}`);

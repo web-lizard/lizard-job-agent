@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lizard Job Agent",
-  "version": "0.6.0",
+  "version": "0.10.0",
   "description": "Заполняет формы отклика на вакансии по локальному resume.json. DeepSeek отвечает только на открытые вопросы.",
   "permissions": [
     "storage",
@@ -12,16 +12,16 @@
   "host_permissions": [
     "https://hh.ru/*",
     "https://*.hh.ru/*",
+    "https://docs.google.com/forms/*",
     "https://api.deepseek.com/*"
   ],
   "background": {
     "scripts": [
-      "background-i06.js"
+      "background.js"
     ]
   },
   "action": {
-    "default_title": "Lizard Job Agent",
-    "default_popup": "popup-i06.html",
+    "default_title": "Открыть постоянную панель Lizard Job Agent",
     "default_icon": {
       "16": "icons/lizard-16.png",
       "32": "icons/lizard-32.png",
@@ -30,7 +30,7 @@
     }
   },
   "options_ui": {
-    "page": "options-i06.html",
+    "page": "options.html",
     "open_in_tab": true
   },
   "icons": {
@@ -44,10 +44,11 @@
     {
       "matches": [
         "https://hh.ru/*",
-        "https://*.hh.ru/*"
+        "https://*.hh.ru/*",
+        "https://docs.google.com/forms/*"
       ],
       "js": [
-        "content-i06.js"
+        "content.js"
       ],
       "run_at": "document_idle",
       "all_frames": true,

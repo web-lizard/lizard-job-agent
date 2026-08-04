@@ -3,16 +3,17 @@ import { resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { JSDOM } from "jsdom";
 
-const contentSource = readFileSync(resolve("content-i06.js"), "utf8");
+const contentSource = readFileSync(resolve("content.js"), "utf8");
 const openDoms: JSDOM[] = [];
 
 function startContent(
   html: string,
   generatedReply = "Тестовый ответ",
   setupDom?: (dom: JSDOM) => void,
+  pageUrl = "https://hh.ru/vacancy/135017075",
 ) {
   const dom = new JSDOM(html, {
-    url: "https://hh.ru/vacancy/135017075",
+    url: pageUrl,
     runScripts: "outside-only",
     pretendToBeVisual: true,
   });
@@ -27,6 +28,8 @@ function startContent(
 
   const listeners: Array<(message: unknown) => Promise<any>> = [];
   let generateCalls = 0;
+  let lastCoverVacancy: any = null;
+  let lastAnswersVacancy: any = null;
   const browser = {
     runtime: {
       onMessage: {
@@ -38,12 +41,37 @@ function startContent(
         if (message.type === "LJA_GET_SETTINGS") {
           return { ok: true, settings: { diagnostics: false } };
         }
+        if (message.type === "LJA_GET_RESUME") {
+          return {
+            ok: true,
+            resume: {
+              candidate: { fullName: "Хорошаев Ярослав Сергеевич" },
+              target: { desiredSalaryRubNet: 130000 },
+              canonicalAnswers: {},
+            },
+          };
+        }
+        if (message.type === "LJA_GENERATE_ANSWERS") {
+          generateCalls += 1;
+          lastAnswersVacancy = message.vacancy;
+          return {
+            ok: true,
+            answers: message.questions.map((question: any) => ({
+              fieldIndex: question.fieldIndex,
+              action: "fill",
+              answer: "Релевантный ответ с учётом PHP, Vue и задач вакансии.",
+              confidence: "high",
+              needsReview: false,
+            })),
+          };
+        }
         if (message.type === "LJA_GENERATE_CHAT_REPLY") {
           generateCalls += 1;
           return { ok: true, reply: generatedReply };
         }
         if (message.type === "LJA_GENERATE_COVER_LETTER") {
           generateCalls += 1;
+          lastCoverVacancy = message.vacancy;
           return {
             ok: true,
             coverLetter: "Здравствуйте!\n\nУ меня есть релевантный опыт PHP.\n\nСоздано с помощью Lizard Job Agent.",
@@ -59,8 +87,10 @@ function startContent(
 
   return {
     dom,
-    send: (message: unknown) => listeners[0](message),
+    send: (message: unknown) => listeners[0]!(message),
     getGenerateCalls: () => generateCalls,
+    getLastCoverVacancy: () => lastCoverVacancy,
+    getLastAnswersVacancy: () => lastAnswersVacancy,
   };
 }
 
@@ -68,7 +98,7 @@ afterEach(() => {
   while (openDoms.length) openDoms.pop()?.window.close();
 });
 
-describe("active iteration 06 content script chat flow", () => {
+describe("active iteration 10 content script chat flow", () => {
   it("finds a modal chat, ignores quick replies and inserts without sending", async () => {
     const app = startContent(`
       <main><h1>Страница вакансии</h1></main>
@@ -90,7 +120,7 @@ describe("active iteration 06 content script chat flow", () => {
     const describe = await app.send({ type: "LJA_DESCRIBE" });
     expect(describe).toMatchObject({
       ok: true,
-      buildId: "I06-20260802",
+      buildId: "I10-20260803",
       pageType: "employer-chat",
       chatFound: true,
       messageInputFound: true,
@@ -152,15 +182,15 @@ describe("active iteration 06 content script chat flow", () => {
       `;
     });
 
-    const describe = await app.send({ type: "LJA_I06_DESCRIBE" });
+    const describe = await app.send({ type: "LJA_I10_DESCRIBE" });
     expect(describe).toMatchObject({
       ok: true,
-      buildId: "I06-20260802",
+      buildId: "I10-20260803",
       chatFound: true,
       messageInputFound: true,
     });
 
-    const result = await app.send({ type: "LJA_I06_PREPARE_REPLY", overwriteFilled: false });
+    const result = await app.send({ type: "LJA_I10_PREPARE_REPLY", overwriteFilled: false });
     const editor = app.dom.window.document.getElementById("editor-host")!.shadowRoot!
       .querySelector("[contenteditable='true']")!;
     expect(result.inserted).toBe(true);
@@ -184,15 +214,138 @@ describe("active iteration 06 content script chat flow", () => {
       event.preventDefault();
     });
 
-    const describe = await app.send({ type: "LJA_I06_DESCRIBE" });
+    const describe = await app.send({ type: "LJA_I10_DESCRIBE" });
     expect(describe.applicationFieldFound).toBe(true);
     const result = await app.send({
-      type: "LJA_I06_PREPARE_APPLICATION",
+      type: "LJA_I10_PREPARE_APPLICATION",
       overwriteFilled: false,
     });
 
     expect(result).toMatchObject({ ok: true, inserted: true, applicationFieldFound: true });
     expect(app.dom.window.document.querySelector("textarea")!.value).toContain("релевантный опыт PHP");
+    expect(submits).toBe(0);
+  });
+
+  it("uses the chat textarea when HH switches it into the cover-letter composer", async () => {
+    const app = startContent(`
+      <div role="dialog" data-qa="chat-window">
+        <div data-qa="chat-message">Отклик на вакансию — без сопроводительного письма</div>
+        <section data-qa="cover-letter-composer">
+          <strong>Сопроводительное письмо</strong>
+          <span>Введите текст сопроводительного письма</span>
+          <textarea placeholder="Сообщение"></textarea>
+        </section>
+      </div>
+    `);
+
+    const describe = await app.send({ type: "LJA_I10_DESCRIBE" });
+    expect(describe).toMatchObject({
+      chatFound: true,
+      messageInputFound: true,
+      applicationFieldFound: true,
+    });
+
+    const result = await app.send({
+      type: "LJA_I10_PREPARE_APPLICATION",
+      overwriteFilled: false,
+    });
+    expect(result).toMatchObject({ ok: true, inserted: true, applicationFieldFound: true });
+    expect(app.dom.window.document.querySelector("textarea")!.value).toContain("релевантный опыт PHP");
+  });
+
+  it("detects the current HH cover-letter popup and sends full vacancy context", async () => {
+    const app = startContent(`
+      <script type="application/ld+json">
+        {"@type":"JobPosting","title":"Fullstack-разработчик","hiringOrganization":{"name":"Центр Интеграции"},"description":"<p>React, TypeScript, Node.js и PostgreSQL. Разработка сервисов для молекулярной генетики.</p>"}
+      </script>
+      <h1 data-qa="vacancy-title">Fullstack-разработчик</h1>
+      <form id="cover-letter-ai-5472895082" action="/applicant/vacancy_response/edit_ajax">
+        <h2>Сопроводительное письмо</h2>
+        <textarea data-qa="vacancy-response-popup-form-letter-input" name="text"></textarea>
+        <button type="submit">Отправить</button>
+      </form>
+    `);
+
+    const result = await app.send({
+      type: "LJA_I10_PREPARE_APPLICATION",
+      overwriteFilled: false,
+    });
+    expect(result).toMatchObject({ ok: true, inserted: true, applicationFieldFound: true });
+    expect(app.getLastCoverVacancy()).toMatchObject({
+      title: "Fullstack-разработчик",
+      company: "Центр Интеграции",
+      url: "https://hh.ru/vacancy/135017075",
+    });
+    expect(app.getLastCoverVacancy().description).toContain("React, TypeScript, Node.js и PostgreSQL");
+  });
+
+  it("fills Google Forms from resume and manual vacancy context without submitting", async () => {
+    const app = startContent(`
+      <form>
+        <div role="listitem">
+          <div>Укажите ваше ФИ</div>
+          <input type="text" aria-label="Укажите ваше ФИ" />
+        </div>
+        <div role="listitem">
+          <div>Приведите 2-3 ваших проекта с использованием AI</div>
+          <textarea aria-label="Приведите 2-3 ваших проекта с использованием AI"></textarea>
+        </div>
+        <button type="submit">Отправить</button>
+      </form>
+    `, "Тестовый ответ", undefined, "https://docs.google.com/forms/d/e/test/viewform");
+    let submits = 0;
+    app.dom.window.document.querySelector("form")!.addEventListener("submit", (event) => {
+      submits += 1;
+      event.preventDefault();
+    });
+
+    const vacancyText = "PHP/Vue разработчик. Нужны интеграции, REST API и опыт применения AI-инструментов в разработке.";
+    const result = await app.send({
+      type: "LJA_I10_FILL_GOOGLE_FORM",
+      vacancyText,
+      overwriteFilled: false,
+    });
+
+    expect(result).toMatchObject({ ok: true, googleFormFound: true, pageType: "google-form" });
+    expect(app.dom.window.document.querySelector("input")!.value).toBe("Хорошаев Ярослав Сергеевич");
+    expect(app.dom.window.document.querySelector("textarea")!.value).toContain("Релевантный ответ");
+    expect(app.getLastAnswersVacancy()).toMatchObject({
+      description: vacancyText,
+      source: "manual-google-form-context",
+    });
+    expect(submits).toBe(0);
+  });
+
+  it("fills HH employer questionnaire fields and never submits the response", async () => {
+    const app = startContent(`
+      <form>
+        <label for="self-employed">Вы готовы оформиться по самозанятости/ИП?</label>
+        <textarea id="self-employed" name="task_324289949_text"></textarea>
+        <label for="hubstaff">Готовы работать через программу учета рабочего времени Hubstaff?</label>
+        <textarea id="hubstaff" name="task_324289950_text"></textarea>
+        <label for="salary">Укажите ваши зарплатные ожидания</label>
+        <textarea id="salary" name="task_324289951_text"></textarea>
+        <button type="submit">Продолжить</button>
+      </form>
+    `, "Тестовый ответ", undefined, "https://hh.ru/applicant/vacancy_response?vacancyId=135256076");
+    let submits = 0;
+    app.dom.window.document.querySelector("form")!.addEventListener("submit", (event) => {
+      submits += 1;
+      event.preventDefault();
+    });
+
+    const describe = await app.send({ type: "LJA_I10_DESCRIBE" });
+    expect(describe).toMatchObject({ hhQuestionnaireFound: true, questionnaireFieldsCount: 3 });
+
+    const result = await app.send({
+      type: "LJA_I10_FILL_HH_QUESTIONNAIRE",
+      overwriteFilled: false,
+    });
+    const fields = Array.from(app.dom.window.document.querySelectorAll("textarea"));
+    expect(result).toMatchObject({ ok: true, pageType: "hh-questionnaire", hhQuestionnaireFound: true });
+    expect(fields[0]!.value).toContain("Релевантный ответ");
+    expect(fields[1]!.value).toContain("Релевантный ответ");
+    expect(fields[2]!.value).toBe("130000");
     expect(submits).toBe(0);
   });
 });

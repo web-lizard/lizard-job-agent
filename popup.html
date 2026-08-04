@@ -1,13 +1,79 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lizard Job Agent</title>
+    <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/popup/main.ts"></script>
+    <main class="popup">
+      <header class="brand">
+        <div class="logo">LJ</div>
+        <div>
+          <h1>Lizard Job Agent</h1>
+          <p id="version">Версия 0.10.0</p>
+        </div>
+        <div class="iteration-badge">
+          <strong>ИТЕРАЦИЯ 10</strong>
+          <span>I10-20260803</span>
+        </div>
+      </header>
+
+      <div class="build-alert">Если вы видите этот синий интерфейс — новая итерация загружена.</div>
+
+      <section class="status-block">
+        <div class="status-row">
+          <span class="status-label">DeepSeek:</span>
+          <span id="deepseek-status" class="status-value">…</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Резюме:</span>
+          <span id="resume-status" class="status-value">…</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Чат:</span>
+          <span id="chat-status" class="status-value">…</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Агент страницы:</span>
+          <span id="agent-status" class="status-value">проверяю…</span>
+        </div>
+      </section>
+
+      <button id="refresh-btn" class="button refresh" type="button">Обновить состояние страницы</button>
+
+      <section id="google-form-block" class="google-form-block hidden">
+        <span class="section-kicker">Google Forms</span>
+        <label for="vacancy-context">Текст вакансии для релевантных ответов</label>
+        <textarea id="vacancy-context" rows="8" placeholder="Вставьте сюда название, описание, требования и задачи вакансии…"></textarea>
+        <p class="context-note">Текст сохраняется только локально в Firefox и передаётся DeepSeek вместе с вопросами формы.</p>
+        <button id="google-fill-btn" class="button primary" type="button">Заполнить Google-форму</button>
+      </section>
+
+      <section id="question-block" class="question-block hidden">
+        <span>Последний вопрос</span>
+        <p id="question-preview"></p>
+      </section>
+
+      <section id="hh-actions">
+        <button id="questionnaire-btn" class="button questionnaire hidden" type="button">Заполнить вопросы работодателя</button>
+        <button id="reply-btn" class="button primary" type="button">Подготовить ответ</button>
+        <button id="application-btn" class="button application" type="button">Подготовить сопроводительное</button>
+      </section>
+      <button id="search-btn" class="button secondary" type="button">Открыть поиск вакансий</button>
+
+      <div class="footer">
+        <button id="settings-btn" class="button secondary" type="button">Настройки</button>
+        <button id="copy-diagnostics-btn" class="link-button" type="button">Скопировать диагностику</button>
+      </div>
+
+      <p id="status" class="status hidden"></p>
+      <p id="report" class="report hidden"></p>
+      <p id="error" class="error hidden"></p>
+
+      <p class="note">Ответы и письма вставляются как черновики. Расширение не нажимает «Отправить» и «Откликнуться».</p>
+    </main>
+    <script src="popup.js"></script>
   </body>
 </html>
-

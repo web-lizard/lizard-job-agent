@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Тестовая форма отклика — Lizard Job Agent</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 24px;
+        color: #222;
+        background: #f5f7f4;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      .note {
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: #fff3cd;
+        border: 1px solid #e0c060;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      form {
+        margin-top: 18px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+      }
+      fieldset {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        padding: 14px;
+      }
+      legend {
+        font-weight: 600;
+        font-size: 14px;
+      }
+      label {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 13px;
+      }
+      label span {
+        display: block;
+        margin-bottom: 4px;
+        color: #555;
+      }
+      input[type="text"],
+      input[type="email"],
+      input[type="tel"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #bbb;
+        border-radius: 6px;
+        font: inherit;
+        box-sizing: border-box;
+      }
+      textarea {
+        min-height: 70px;
+        resize: vertical;
+      }
+      .inline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .inline input {
+        width: auto;
+      }
+      .submit {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        background: #2d6a4f;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Тестовая форма отклика</h1>
+    <p class="note">
+      Это локальная страница для ручной проверки расширения. Она не подключена к production manifest.
+      Чтобы расширение работало на ней, временно добавьте <code>"file:///*"</code> в
+      <code>matches</code> блока <code>content_scripts</code> в manifest.json, перезагрузите расширение
+      и откройте этот файл в Firefox. После проверки верните matches обратно.
+    </p>
+
+    <form id="apply-form">
+      <fieldset>
+        <legend>Персональные данные</legend>
+        <label>
+          <span>ФИО</span>
+          <input type="text" name="fullName" />
+        </label>
+        <label>
+          <span>Имя</span>
+          <input type="text" name="firstName" />
+        </label>
+        <label>
+          <span>Фамилия</span>
+          <input type="text" name="lastName" />
+        </label>
+        <label>
+          <span>Отчество</span>
+          <input type="text" name="middleName" />
+        </label>
+        <label>
+          <span>Телефон</span>
+          <input type="tel" name="phone" />
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" />
+        </label>
+        <label>
+          <span>Город</span>
+          <input type="text" name="city" />
+        </label>
+        <label>
+          <span>Ближайшее метро</span>
+          <input type="text" name="metro" />
+        </label>
+        <label>
+          <span>Ссылка на GitHub</span>
+          <input type="text" name="github" />
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Ожидания</legend>
+        <label>
+          <span>Желаемая зарплата (руб.)</span>
+          <input type="text" name="salary" />
+        </label>
+        <label>
+          <span>Формат работы</span>
+          <select name="workFormat">
+            <option value="">Выберите</option>
+            <option value="remote">Удалённая работа</option>
+            <option value="hybrid">Гибрид</option>
+            <option value="office">Офис</option>
+          </select>
+        </label>
+        <label>
+          <span>Тип занятости</span>
+          <select name="employmentType">
+            <option value="">Выберите</option>
+            <option value="full">Полная занятость</option>
+            <option value="part">Частичная занятость</option>
+            <option value="project">Проектная работа</option>
+          </select>
+        </label>
+        <label class="inline">
+          <input type="checkbox" name="relocation" />
+          <span>Готов к переезду</span>
+        </label>
+        <label class="inline">
+          <input type="checkbox" name="businessTrips" />
+          <span>Готов к командировкам</span>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Вопросы</legend>
+        <label>
+          <span>Расскажите о себе</span>
+          <textarea name="about"></textarea>
+        </label>
+        <label>
+          <span>Почему вас заинтересовала эта вакансия?</span>
+          <textarea name="whyInterested"></textarea>
+        </label>
+        <label>
+          <span>Сопроводительное письмо</span>
+          <textarea name="coverLetter"></textarea>
+        </label>
+        <label>
+          <span>Какой у вас опыт с PHP?</span>
+          <textarea name="phpExperience"></textarea>
+        </label>
+        <label>
+          <span>Уровень английского языка</span>
+          <input type="text" name="englishLevel" />
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Согласия</legend>
+        <label class="inline">
+          <input type="checkbox" name="consent" />
+          <span>Согласен на обработку персональных данных</span>
+        </label>
+        <label class="inline">
+          <input type="checkbox" name="terms" />
+          <span>Принимаю условия пользовательского соглашения</span>
+        </label>
+      </fieldset>
+
+      <button class="submit" type="submit">Отправить отклик</button>
+    </form>
+
+    <script>
+      document.getElementById("apply-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        alert("Это тестовая форма. Отправка не выполняется.");
+      });
+    </script>
+  </body>
+</html>

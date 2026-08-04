@@ -1,9 +1,9 @@
 (() => {
 "use strict";
 
-if (globalThis.__ljaContentScriptI06Loaded) return;
-globalThis.__ljaContentScriptI06Loaded = true;
-const BUILD_ID = "I06-20260802";
+if (globalThis.__ljaContentScriptI10Loaded) return;
+globalThis.__ljaContentScriptI10Loaded = true;
+const BUILD_ID = "I10-20260803";
 
 // Lizard Job Agent — content script (Firefox MV3).
 // Отвечает за:
@@ -148,12 +148,10 @@ function describeElement(element) {
 
   const id = element.getAttribute("id");
   if (id) {
-    try {
-      const label = document.querySelector(`label[for="${CSS.escape(id)}"]`);
-      if (label && label.textContent) parts.push(label.textContent);
-    } catch {
-      // Игнорируем невалидные id.
-    }
+    const label = Array.from(document.querySelectorAll("label[for]")).find(
+      (candidate) => candidate.getAttribute("for") === id,
+    );
+    if (label && label.textContent) parts.push(label.textContent);
   }
 
   const wrappingLabel = element.closest("label");
@@ -172,32 +170,36 @@ function describeElement(element) {
     }
   }
 
+  const hasSemanticLabel = parts.some((part) => normalizeText(part).length > 0);
+
   const placeholder = element.getAttribute("placeholder");
   if (placeholder) parts.push(placeholder);
 
   const name = element.getAttribute("name");
   if (name) parts.push(name);
 
-  // Ближайший заголовок.
-  let node = element.parentElement;
-  for (let depth = 0; node && depth < 4; depth += 1) {
-    const heading = node.querySelector("h1, h2, h3, h4, h5, h6, legend, [class*='label'], [class*='title']");
-    if (heading && heading.textContent) {
-      parts.push(heading.textContent);
-      break;
+  if (!hasSemanticLabel) {
+    // Ближайший заголовок нужен только когда у поля нет собственного label/aria-labelledby.
+    let node = element.parentElement;
+    for (let depth = 0; node && depth < 4; depth += 1) {
+      const heading = node.querySelector("h1, h2, h3, h4, h5, h6, legend, [class*='label'], [class*='title']");
+      if (heading && heading.textContent) {
+        parts.push(heading.textContent);
+        break;
+      }
+      node = node.parentElement;
     }
-    node = node.parentElement;
-  }
 
-  // Текст родительского контейнера (ограниченный).
-  let parent = element.parentElement;
-  for (let depth = 0; parent && depth < 3; depth += 1) {
-    const text = normalizeText(parent.innerText || parent.textContent || "");
-    if (text.length > 0 && text.length <= 180) {
-      parts.push(text);
-      break;
+    // Текст родительского контейнера (ограниченный).
+    let parent = element.parentElement;
+    for (let depth = 0; parent && depth < 3; depth += 1) {
+      const text = normalizeText(parent.innerText || parent.textContent || "");
+      if (text.length > 0 && text.length <= 180) {
+        parts.push(text);
+        break;
+      }
+      parent = parent.parentElement;
     }
-    parent = parent.parentElement;
   }
 
   const label = normalizeText(parts.join(" "));
@@ -210,7 +212,7 @@ function describeElement(element) {
 
 // Детерминированные персональные поля: заполняются локально из resume.json.
 const DETERMINISTIC_RULES = [
-  { key: "fullName", pattern: /фио|ф\.и\.о|полное имя|full name|имя и фамили/i },
+  { key: "fullName", pattern: /фио|ф\.и\.о|укажите ваше фи(?:\s|$)|^фи(?:\s|$)|полное имя|full name|имя и фамили/i },
   { key: "firstName", pattern: /^имя$|имя\b(?! и фамили)/i },
   { key: "lastName", pattern: /фамили/i },
   { key: "middleName", pattern: /отчество|middle name/i },
@@ -223,7 +225,7 @@ const DETERMINISTIC_RULES = [
   { key: "relocation", pattern: /переезд|relocation/i },
   { key: "businessTrips", pattern: /командировк|business trip/i },
   { key: "workFormat", pattern: /формат работы|удалённ|гибрид|офис|work format|remote/i },
-  { key: "employmentType", pattern: /занятост|employment|график работы/i },
+  { key: "employmentType", pattern: /тип занятости|формат занятости|employment type|график работы/i },
 ];
 
 // Простые поля с известным каноническим ответом.
@@ -519,19 +521,61 @@ function highlight(element, status) {
 // ---------------------------------------------------------------------------
 
 function extractVacancyContext() {
-  const title =
-    document.querySelector("h1, [data-qa='vacancy-title'], [class*='vacancy-title']")?.textContent ||
-    document.title ||
-    "";
-  const company =
-    document.querySelector("[data-qa='vacancy-serp__vacancy-employer'], [data-qa='vacancy-view-company-name'], [class*='company-name']")?.textContent ||
-    "";
-  const body = document.body.innerText || "";
-  const description = body.slice(0, 6000);
+  let jobPosting = null;
+  for (const script of document.querySelectorAll("script[type='application/ld+json']")) {
+    try {
+      const parsed = JSON.parse(script.textContent || "null");
+      const candidates = Array.isArray(parsed)
+        ? parsed
+        : Array.isArray(parsed?.["@graph"])
+          ? parsed["@graph"]
+          : [parsed];
+      jobPosting = candidates.find((item) => {
+        const types = Array.isArray(item?.["@type"]) ? item["@type"] : [item?.["@type"]];
+        return types.includes("JobPosting");
+      }) || jobPosting;
+    } catch {
+      // Некоторые служебные JSON-LD блоки HH могут быть неполными.
+    }
+  }
+
+  const textFrom = (selectors) => {
+    for (const selector of selectors) {
+      const element = document.querySelector(selector);
+      const text = elementText(element);
+      if (text) return text;
+    }
+    return "";
+  };
+  const stripHtml = (value) => {
+    const holder = document.createElement("div");
+    holder.innerHTML = String(value || "");
+    return elementText(holder);
+  };
+
+  const title = String(jobPosting?.title || "").trim() || textFrom([
+    "[data-qa='vacancy-title']",
+    "[data-qa='vacancy-view-title']",
+    "h1",
+  ]) || document.title || "";
+  const company = String(jobPosting?.hiringOrganization?.name || "").trim() || textFrom([
+    "[data-qa='vacancy-view-company-name']",
+    "[data-qa='vacancy-serp__vacancy-employer']",
+    "[class*='company-name']",
+  ]);
+  const structuredDescription = stripHtml(jobPosting?.description);
+  const pageDescription = textFrom([
+    "[data-qa='vacancy-description']",
+    "[data-qa*='vacancy-description']",
+    "[class*='vacancy-description']",
+  ]);
+  const body = document.body.innerText || document.body.textContent || "";
+  const description = structuredDescription || pageDescription || body;
   return {
     title: title.trim().slice(0, 300),
     company: company.trim().slice(0, 300),
-    description: description.slice(0, 6000),
+    description: description.trim().slice(0, 12000),
+    url: window.location.href,
   };
 }
 
@@ -1082,11 +1126,28 @@ function emptyResult() {
 const COVER_LETTER_PATTERN =
   /сопровод|cover\s*letter|письмо работодателю|комментарий к отклику|почему вы хотите работать|расскажите о себе/i;
 
+const COVER_LETTER_COMPOSER_PATTERN =
+  /введите.{0,80}(сопровод|текст письма)|сопроводительное письмо|cover\s*letter|письмо работодателю/i;
+
+function coverLetterContextScore(element) {
+  let current = parentAcrossShadow(element);
+  let best = 0;
+  for (let depth = 0; current && depth < 5; depth += 1) {
+    const text = normalizeText(elementText(current).slice(0, 1800));
+    if (COVER_LETTER_COMPOSER_PATTERN.test(text) && !/^добавить сопроводительное письмо$/.test(text)) {
+      const explicitPrompt = /введите.{0,80}(сопровод|текст письма)/.test(text);
+      best = Math.max(best, (explicitPrompt ? 220 : 130) - depth * 15);
+    }
+    current = parentAcrossShadow(current);
+  }
+  return best;
+}
+
 function findCoverLetterInput() {
   const chatInput = findActiveChat().input;
   let best = null;
-  for (const element of collectFields()) {
-    if (element === chatInput) continue;
+  for (const element of queryAllDeep(FIELD_SELECTOR)) {
+    if (!isVisible(element) || element.disabled || element.readOnly) continue;
     if (
       !(element instanceof HTMLInputElement) &&
       !(element instanceof HTMLTextAreaElement) &&
@@ -1097,6 +1158,8 @@ function findCoverLetterInput() {
       continue;
     }
     const description = describeElement(element);
+    const contextScore = coverLetterContextScore(element);
+    if (element === chatInput && contextScore < 100) continue;
     const identity = [
       description.label,
       element.getAttribute("data-qa") || "",
@@ -1105,7 +1168,9 @@ function findCoverLetterInput() {
       String(element.className || ""),
     ].join(" ");
     let score = COVER_LETTER_PATTERN.test(identity) ? 120 : 0;
+    if (/vacancy-response-popup-form-letter-input|cover-letter-ai|cover-letter|form-letter/i.test(identity)) score += 240;
     if (/letter|cover|сопровод/i.test(identity)) score += 80;
+    score += contextScore;
     if (element instanceof HTMLTextAreaElement || element.isContentEditable) score += 15;
     if (!best || score > best.score) best = { element, score, label: description.label };
   }
@@ -1166,7 +1231,7 @@ async function prepareApplication(overwriteFilled) {
   };
 }
 
-async function fillPage(doNotOverwrite) {
+async function fillPage(doNotOverwrite, vacancyOverride = null, elementsOverride = null) {
   const result = emptyResult();
 
   // 1. Получаем resume.json из background.
@@ -1179,7 +1244,7 @@ async function fillPage(doNotOverwrite) {
   const resume = resumeResponse.resume;
 
   // 2. Сканируем и классифицируем поля.
-  const elements = collectFields();
+  const elements = elementsOverride || collectFields();
   if (elements.length === 0) {
     throw new Error("На странице не найдено доступных полей формы.");
   }
@@ -1207,7 +1272,7 @@ async function fillPage(doNotOverwrite) {
 
   // 4. Отправляем открытые вопросы в DeepSeek.
   if (openFields.length > 0) {
-    const vacancy = extractVacancyContext();
+    const vacancy = vacancyOverride || extractVacancyContext();
     const questions = openFields.map((field) => ({
       fieldIndex: field.index,
       label: field.label,
@@ -1246,6 +1311,40 @@ async function fillPage(doNotOverwrite) {
   }
 
   return result;
+}
+
+function hhQuestionnaireFields() {
+  return queryAllDeep("textarea[name^='task_'],input[name^='task_']").filter((element) =>
+    isVisible(element) && !element.disabled && !element.readOnly,
+  );
+}
+
+async function hhQuestionnaireVacancyContext() {
+  const fallback = extractVacancyContext();
+  const vacancyId = new URL(window.location.href).searchParams.get("vacancyId");
+  if (!/^\d+$/.test(vacancyId || "")) return fallback;
+  try {
+    const response = await fetch(`https://hh.ru/vacancy/${vacancyId}`, {
+      credentials: "include",
+      headers: { Accept: "text/html" },
+    });
+    if (!response.ok) return fallback;
+    const html = await response.text();
+    const page = new DOMParser().parseFromString(html, "text/html");
+    const text = (selector) => elementText(page.querySelector(selector));
+    return {
+      title: text("[data-qa='vacancy-title']") || text("h1") || fallback.title,
+      company: text("[data-qa='vacancy-view-company-name']") || fallback.company,
+      description:
+        text("[data-qa='vacancy-description']") ||
+        text("[data-qa*='vacancy-description']") ||
+        fallback.description,
+      url: `https://hh.ru/vacancy/${vacancyId}`,
+      source: "hh-vacancy-response",
+    };
+  } catch {
+    return fallback;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1391,7 +1490,53 @@ async function handleContentMessage(message) {
       return { ok: true, result };
     }
 
-    if (message.type === "LJA_PREPARE_REPLY" || message.type === "LJA_I06_PREPARE_REPLY") {
+    if (message.type === "LJA_I10_FILL_GOOGLE_FORM") {
+      const hostname = window.location.hostname.toLowerCase();
+      const isGoogleForm = hostname === "docs.google.com" && window.location.pathname.startsWith("/forms/");
+      if (!isGoogleForm) {
+        return { ok: false, error: "Откройте Google Forms перед заполнением." };
+      }
+      const vacancyText = String(message.vacancyText || "").trim();
+      if (vacancyText.length < 30) {
+        return { ok: false, error: "Вставьте текст вакансии в панель агента." };
+      }
+      const overwriteFilled = message.overwriteFilled === true;
+      const result = await fillPage(!overwriteFilled, {
+        title: "Вакансия из ручного контекста",
+        company: "",
+        description: vacancyText.slice(0, 16000),
+        url: window.location.href,
+        source: "manual-google-form-context",
+      });
+      return {
+        ok: true,
+        pageType: "google-form",
+        googleFormFound: true,
+        result,
+        message: `Google-форма заполнена как черновик: ${result.filled.length} полей. Проверьте ответы перед отправкой.`,
+      };
+    }
+
+    if (message.type === "LJA_I10_FILL_HH_QUESTIONNAIRE") {
+      if (!/\/applicant\/vacancy_response/i.test(window.location.pathname)) {
+        return { ok: false, error: "Откройте страницу с вопросами работодателя на HH.ru." };
+      }
+      const fields = hhQuestionnaireFields();
+      if (!fields.length) {
+        return { ok: false, error: "Поля вопросов работодателя не найдены." };
+      }
+      const vacancy = await hhQuestionnaireVacancyContext();
+      const result = await fillPage(message.overwriteFilled !== true, vacancy, fields);
+      return {
+        ok: true,
+        pageType: "hh-questionnaire",
+        hhQuestionnaireFound: true,
+        result,
+        message: `Ответы работодателю подготовлены: ${result.filled.length} полей. Проверьте их перед продолжением.`,
+      };
+    }
+
+    if (message.type === "LJA_PREPARE_REPLY" || message.type === "LJA_I10_PREPARE_REPLY") {
       const overwriteFilled =
         typeof message.overwriteFilled === "boolean"
           ? message.overwriteFilled
@@ -1399,7 +1544,7 @@ async function handleContentMessage(message) {
       return await prepareChatReply(overwriteFilled);
     }
 
-    if (message.type === "LJA_PREPARE_APPLICATION" || message.type === "LJA_I06_PREPARE_APPLICATION") {
+    if (message.type === "LJA_PREPARE_APPLICATION" || message.type === "LJA_I10_PREPARE_APPLICATION") {
       const overwriteFilled =
         typeof message.overwriteFilled === "boolean"
           ? message.overwriteFilled
@@ -1407,12 +1552,14 @@ async function handleContentMessage(message) {
       return await prepareApplication(overwriteFilled);
     }
 
-    if (message.type === "LJA_DESCRIBE" || message.type === "LJA_I06_DESCRIBE") {
+    if (message.type === "LJA_DESCRIBE" || message.type === "LJA_I10_DESCRIBE") {
       const chat = findActiveChat();
       const detectedType = detectPageType(chat);
       const pageType = chat.container ? "employer-chat" : detectedType;
       const applicationField = findCoverLetterInput();
       await logDiagnosticsIfEnabled(chat, pageType);
+      const isGoogleForm = window.location.hostname === "docs.google.com" && window.location.pathname.startsWith("/forms/");
+      const questionnaireFields = hhQuestionnaireFields();
       return {
         ok: true,
         frameUrl: window.location.href,
@@ -1420,9 +1567,12 @@ async function handleContentMessage(message) {
         chatFound: Boolean(chat.container),
         messageInputFound: Boolean(chat.input),
         applicationFieldFound: Boolean(applicationField),
+        googleFormFound: isGoogleForm,
+        hhQuestionnaireFound: questionnaireFields.length > 0,
+        questionnaireFieldsCount: questionnaireFields.length,
         lastEmployerMessage: chat.lastEmployerMessage,
         messagesCount: chat.messages.length,
-        fieldsCount: chat.container ? 0 : collectFields().length,
+        fieldsCount: isGoogleForm ? collectFields().length : chat.container ? 0 : collectFields().length,
         title: document.title,
       };
     }

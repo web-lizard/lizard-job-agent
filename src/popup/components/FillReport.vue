@@ -24,7 +24,10 @@ const review = computed(() => props.report.skipped.length + props.report.failed.
         <span class="report__warn">×</span>
         <span>{{ item.label }} — {{ item.reason }}</span>
       </li>
+      <li v-for="(warning, index) in report.warnings" :key="`warning-${index}`">
+        <span class="report__warn">!</span>
+        <span>{{ warning }}</span>
+      </li>
     </ul>
   </section>
 </template>
-

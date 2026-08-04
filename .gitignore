@@ -4,6 +4,21 @@ web-ext-artifacts/
 *.xpi
 *.zip
 profile.local.json
+ai-settings.local.json
+resume.json
+.env
+.env.*
 .DS_Store
 coverage/
 
+# Локальные снимки и аварийные копии, не являющиеся исходным кодом
+.local-archive/
+*-backup-*/
+*-build.log
+*-bundle.txt
+LIZARD_JOB_AGENT_CURRENT_STATE.txt
+background-i*.js
+content-i*.js
+options-i*.*
+panel-i*.*
+popup-i*.*

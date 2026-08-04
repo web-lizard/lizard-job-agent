@@ -75,17 +75,17 @@ const profileFields: Array<[FieldKey, (profile: JobProfile) => string | number |
   ["firstName", (profile) => profile.personal.firstName],
   ["lastName", (profile) => profile.personal.lastName],
   ["middleName", (profile) => profile.personal.middleName],
-  ["birthDate", (profile) => profile.personal.birthDate],
+  ["birthDate", (profile) => profile.personal.birthDate ?? undefined],
   ["email", (profile) => profile.personal.email],
   ["phone", (profile) => profile.personal.phone],
   ["city", (profile) => profile.personal.city],
   ["citizenship", (profile) => profile.personal.citizenship],
   ["position", (profile) => profile.target.position],
-  ["salary", (profile) => profile.target.salary],
+  ["salary", (profile) => profile.target.salary ?? undefined],
   ["summary", (profile) => profile.summary],
   ["skills", (profile) => profile.skills.join(", ")],
   ["github", (profile) => profile.links.github],
-  ["portfolio", (profile) => profile.links.portfolio ?? profile.links.website],
+  ["portfolio", (profile) => profile.links.portfolio || profile.links.website],
 ];
 
 const experienceFields: Array<
@@ -99,8 +99,8 @@ const experienceFields: Array<
   ["startMonth", (experience) => experience.startMonth],
   ["startYear", (experience) => experience.startYear],
   ["currentlyWorking", (experience) => experience.currentlyWorking],
-  ["endMonth", (experience) => experience.currentlyWorking ? undefined : experience.endMonth],
-  ["endYear", (experience) => experience.currentlyWorking ? undefined : experience.endYear],
+  ["endMonth", (experience) => experience.currentlyWorking ? undefined : experience.endMonth ?? undefined],
+  ["endYear", (experience) => experience.currentlyWorking ? undefined : experience.endYear ?? undefined],
   ["description", (experience) => experience.description],
 ];
 
@@ -166,4 +166,3 @@ export const genericAdapter: SiteAdapter = {
     return mergeFillResults(...results);
   },
 };
-

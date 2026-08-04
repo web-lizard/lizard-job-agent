@@ -2,20 +2,20 @@ export interface JobProfile {
   personal: {
     firstName: string;
     lastName: string;
-    middleName?: string;
-    birthDate?: string;
+    middleName: string;
+    birthDate: string | null;
     email: string;
     phone: string;
     city: string;
-    citizenship?: string;
-    relocation?: boolean;
-    remoteWork?: boolean;
-    businessTrips?: boolean;
+    citizenship: string;
+    relocation: boolean | null;
+    remoteWork: boolean | null;
+    businessTrips: boolean | null;
   };
   target: {
     position: string;
-    salary?: number;
-    currency?: string;
+    salary: number | null;
+    currency: string;
     employmentTypes: string[];
     workFormats: string[];
   };
@@ -25,36 +25,36 @@ export interface JobProfile {
   education: Education[];
   languages: Language[];
   links: {
-    github?: string;
-    portfolio?: string;
-    website?: string;
-    telegram?: string;
-    linkedin?: string;
-    hh?: string;
+    github: string;
+    portfolio: string;
+    website: string;
+    telegram: string;
+    linkedin: string;
+    hh: string;
   };
 }
 
 export interface WorkExperience {
   company: string;
   position: string;
-  city?: string;
-  website?: string;
-  industry?: string;
+  city: string;
+  website: string;
+  industry: string;
   startMonth: number;
   startYear: number;
-  endMonth?: number;
-  endYear?: number;
+  endMonth: number | null;
+  endYear: number | null;
   currentlyWorking: boolean;
   description: string;
 }
 
 export interface Education {
   institution: string;
-  faculty?: string;
-  specialization?: string;
-  degree?: string;
-  startYear?: number;
-  graduationYear?: number;
+  faculty: string;
+  specialization: string;
+  degree: string;
+  startYear: number | null;
+  graduationYear: number | null;
 }
 
 export interface Language {
@@ -65,4 +65,3 @@ export interface Language {
 export interface ExtensionPreferences {
   doNotOverwrite: boolean;
 }
-

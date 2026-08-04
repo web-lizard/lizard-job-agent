@@ -1,11 +1,21 @@
 {
   "name": "lizard-job-agent",
-  "version": "0.6.0",
+  "version": "0.10.0",
+  "description": "Firefox-помощник для безопасной подготовки откликов на вакансии HH.ru",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20",
+    "npm": ">=10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/web-lizard/lizard-job-agent.git"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build --mode ui && vite build --mode content && vite build --mode background",
+    "build": "npm run check && node scripts/build.mjs",
+    "check": "npm run typecheck && npm test && npm run check:syntax",
+    "check:syntax": "node --check background.js && node --check content.js && node --check popup.js && node --check options.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -17,6 +27,7 @@
     "zod": "^4.0.14"
   },
   "devDependencies": {
+    "@types/jsdom": "^28.0.3",
     "@types/node": "^24.1.0",
     "@types/webextension-polyfill": "^0.12.3",
     "@vitejs/plugin-vue": "^6.0.1",

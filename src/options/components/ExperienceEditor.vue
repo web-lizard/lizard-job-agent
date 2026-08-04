@@ -13,6 +13,8 @@ function emptyExperience(): WorkExperience {
     industry: "",
     startMonth: now.getMonth() + 1,
     startYear: now.getFullYear(),
+    endMonth: null,
+    endYear: null,
     currentlyWorking: false,
     description: "",
   };
@@ -65,4 +67,3 @@ function move(index: number, direction: -1 | 1): void {
     <div v-else class="empty-state">Добавьте хотя бы одно место работы.</div>
   </section>
 </template>
-

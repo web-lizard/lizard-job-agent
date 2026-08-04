@@ -43,6 +43,69 @@ body {
   background: rgba(24, 33, 27, 0.92);
 }
 
+.ai-status-list {
+  overflow: hidden;
+  border: 1px solid #344137;
+  border-radius: 14px;
+  background: rgba(24, 33, 27, 0.92);
+}
+
+.ai-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 13px;
+}
+
+.ai-status-row + .ai-status-row {
+  border-top: 1px solid #2c3830;
+}
+
+.ai-status-row div,
+.ai-status-row strong,
+.ai-status-row span {
+  display: block;
+}
+
+.ai-status-row strong {
+  color: #edf4e9;
+  font-size: 13px;
+}
+
+.ai-status-row span {
+  max-width: 190px;
+  margin-top: 2px;
+  overflow: hidden;
+  color: #8f9b91;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-status-row b {
+  color: #a8b3aa;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.ai-status-row b i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #6b756e;
+}
+
+.ai-status-row b.ok {
+  color: #bffc7f;
+}
+
+.ai-status-row b.ok i {
+  background: #7edc20;
+}
+
 .status-row {
   display: flex;
   align-items: center;
@@ -69,6 +132,26 @@ body {
 .fill-button {
   width: 100%;
   margin-top: 12px;
+}
+
+.popup-cancel {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.popup-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: popup-spin 700ms linear infinite;
+}
+
+@keyframes popup-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .preference {
@@ -141,4 +224,3 @@ body {
 .report__warn {
   color: #ffc85c;
 }
-

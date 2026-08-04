@@ -1,0 +1,31 @@
+name: Предложить улучшение
+description: Новая возможность или улучшение существующего поведения
+title: "[Идея]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Какую проблему решает предложение?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Предлагаемое решение
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Рассмотренные альтернативы
+  - type: dropdown
+    id: privacy
+    attributes:
+      label: Затрагивает ли изменение передачу или хранение данных?
+      options:
+        - Нет
+        - Да
+        - Не уверен(а)
+    validations:
+      required: true

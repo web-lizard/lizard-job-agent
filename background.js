@@ -29,7 +29,78 @@ const SETTINGS_KEY = "ljaSettings";
 const LEGACY_SETTINGS_KEY = "deepSeekSettings";
 const DEEPSEEK_ENDPOINT = "/chat/completions";
 const REQUEST_TIMEOUT_MS = 60000;
-const BUILD_ID = "I06-20260802";
+const BUILD_ID = "I10-20260803";
+const PANEL_URL = browser.runtime.getURL("popup.html");
+let panelWindowId = null;
+let targetTabId = null;
+
+async function rememberTargetTab(tabId, windowId) {
+  if (!Number.isInteger(tabId)) return;
+  if (Number.isInteger(windowId)) {
+    const targetWindow = await browser.windows.get(windowId);
+    if (targetWindow?.type !== "normal") return;
+  }
+  targetTabId = tabId;
+}
+
+async function getTargetTab() {
+  if (Number.isInteger(targetTabId)) {
+    try {
+      return await browser.tabs.get(targetTabId);
+    } catch {
+      targetTabId = null;
+    }
+  }
+
+  const tabs = await browser.tabs.query({ active: true });
+  const hhTab = tabs.find((tab) => /^https:\/\/([^.]+\.)?hh\.ru\//i.test(tab.url || ""));
+  return hhTab || tabs.find((tab) => !String(tab.url || "").startsWith("moz-extension://")) || null;
+}
+
+async function openPersistentPanel(tab) {
+  if (Number.isInteger(tab?.id)) targetTabId = tab.id;
+
+  if (Number.isInteger(panelWindowId)) {
+    try {
+      await browser.windows.update(panelWindowId, { focused: true, state: "normal" });
+      return;
+    } catch {
+      panelWindowId = null;
+    }
+  }
+
+  const windows = await browser.windows.getAll({ populate: true });
+  const existing = windows.find((item) =>
+    item.type === "popup" && item.tabs?.some((panelTab) => panelTab.url === PANEL_URL),
+  );
+  if (existing && Number.isInteger(existing.id)) {
+    panelWindowId = existing.id;
+    await browser.windows.update(panelWindowId, { focused: true, state: "normal" });
+    return;
+  }
+
+  const panel = await browser.windows.create({
+    url: PANEL_URL,
+    type: "popup",
+    width: 450,
+    height: 760,
+  });
+  panelWindowId = Number.isInteger(panel?.id) ? panel.id : null;
+}
+
+browser.action.onClicked.addListener((tab) => {
+  return openPersistentPanel(tab).catch((error) => {
+    console.error("Lizard Job Agent: не удалось открыть постоянную панель", error);
+  });
+});
+
+browser.windows.onRemoved.addListener((windowId) => {
+  if (windowId === panelWindowId) panelWindowId = null;
+});
+
+browser.tabs.onActivated.addListener(({ tabId, windowId }) => {
+  rememberTargetTab(tabId, windowId).catch(() => {});
+});
 
 function errorText(error, fallback) {
   return error && typeof error.message === "string" && error.message.trim()
@@ -417,6 +488,7 @@ const SYSTEM_PROMPT = `
 - не пиши канцелярские вступления;
 - не используй фразу «я умею всё»;
 - не используй длинное тире.
+- на вопросы о будущей готовности использовать учёт времени, конкретный рабочий инструмент или обсуждать формат оформления можно дать осторожный ответ «готов обсудить/готов использовать», не утверждая, что ИП или самозанятость уже оформлены; для такого ответа ставь needsReview true.
 
 Верни строго валидный JSON без Markdown в формате:
 {
@@ -437,7 +509,7 @@ const SYSTEM_PROMPT = `
 - check: отметить checkbox (answer: true или false).
 - skip: не заполнять поле (например, если данных нет или вопрос требует ручной проверки).
 
-Если для вопроса нет данных в резюме или вопрос требует юридического согласия, используй action "skip" и needsReview true.
+Если для вопроса нет данных в резюме или вопрос требует юридического согласия, используй action "skip" и needsReview true. Исключение — нейтральный ответ о будущей готовности обсудить рабочий инструмент или формат оформления по правилу выше.
 Не выдумывай значения, которых нет в резюме.
 `.trim();
 
@@ -750,6 +822,13 @@ browser.runtime.onMessage.addListener((message, sender) => {
           buildId: BUILD_ID,
           error: errorText(error, "Ошибка генерации сопроводительного письма."),
         }));
+
+    case "LJA_GET_TARGET_TAB":
+      return getTargetTab().then((tab) => ({
+        ok: true,
+        buildId: BUILD_ID,
+        tab,
+      }));
 
     case "LJA_GET_SETTINGS":
       return getSettings().then((settings) => ({

@@ -10,7 +10,7 @@ html,
 body {
   width: 410px;
   min-width: 410px;
-  min-height: 500px;
+  min-height: 100vh;
   margin: 0;
   background:
     radial-gradient(circle at 100% 0%, rgba(40, 206, 255, 0.2), transparent 18rem),
@@ -115,6 +115,49 @@ button { font: inherit; }
 .question-block span { color: #a9a0ef; font-size: 10px; text-transform: uppercase; }
 .question-block p { margin: 5px 0 0; color: #f4f2ff; font-size: 12px; line-height: 1.45; }
 
+.google-form-block {
+  margin-bottom: 14px;
+  border: 1px solid rgba(141, 124, 255, 0.55);
+  border-radius: 13px;
+  padding: 12px;
+  background: rgba(141, 124, 255, 0.1);
+}
+
+.section-kicker {
+  display: block;
+  margin-bottom: 5px;
+  color: #8fe8ff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.google-form-block label {
+  display: block;
+  margin-bottom: 8px;
+  color: #f4f2ff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.google-form-block textarea {
+  width: 100%;
+  min-height: 128px;
+  resize: vertical;
+  border: 1px solid #345582;
+  border-radius: 10px;
+  padding: 10px;
+  color: #eef7ff;
+  background: #07152c;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.google-form-block textarea:focus { border-color: #55c7ef; outline: none; }
+.context-note { margin: 7px 0 10px; color: #8ba9c8; font-size: 10px; line-height: 1.4; }
+
 .button {
   width: 100%;
   border: 1px solid #345582;
@@ -127,6 +170,13 @@ button { font: inherit; }
 
 .button:hover:not(:disabled) { border-color: #55c7ef; background: #15305a; }
 .button:disabled { cursor: not-allowed; opacity: 0.5; }
+
+.button.refresh {
+  margin-bottom: 12px;
+  border-color: rgba(64, 217, 255, 0.45);
+  color: #bfeeff;
+  background: rgba(20, 139, 187, 0.12);
+}
 
 .primary {
   border-color: #4ad8ff;
@@ -144,6 +194,14 @@ button { font: inherit; }
   background: rgba(141, 124, 255, 0.2);
 }
 .application:hover:not(:disabled) { border-color: #b3a8ff; background: rgba(141, 124, 255, 0.3); }
+.questionnaire {
+  margin-bottom: 8px;
+  border-color: #67e6b3;
+  color: #062016;
+  background: linear-gradient(90deg, #67e6b3, #40d9ff);
+  font-weight: 900;
+}
+.questionnaire:hover:not(:disabled) { border-color: #a4f5d5; background: linear-gradient(90deg, #91f0ca, #73e5ff); }
 .footer { margin-top: 11px; }
 
 .link-button {

@@ -3,7 +3,17 @@ type SafeDetails = Record<string, string | number | boolean | undefined>;
 const redact = (details: SafeDetails): SafeDetails =>
   Object.fromEntries(
     Object.entries(details).filter(
-      ([key]) => !["email", "phone", "description", "summary", "value"].includes(key),
+      ([key]) =>
+        ![
+          "email",
+          "phone",
+          "description",
+          "summary",
+          "value",
+          "apiKey",
+          "key",
+          "authorization",
+        ].includes(key),
     ),
   );
 
@@ -18,4 +28,3 @@ export const logger = {
     console.error("[Lizard Job Agent]", event, redact(details));
   },
 };
-

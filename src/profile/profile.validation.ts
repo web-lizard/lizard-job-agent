@@ -1,4 +1,5 @@
 import type { JobProfile } from "./profile.types";
+import { jobProfileSchema } from "./profile.schema";
 
 export interface ProfileValidation {
   valid: boolean;
@@ -10,22 +11,14 @@ const nonEmpty = (value: unknown): boolean =>
   typeof value === "string" && value.trim().length > 0;
 
 export function validateProfile(value: unknown): ProfileValidation {
-  const errors: string[] = [];
-  if (!value || typeof value !== "object") {
-    return { valid: false, errors: ["JSON должен содержать объект профиля"], completion: 0 };
+  const parsed = jobProfileSchema.safeParse(value);
+  const errors = parsed.success
+    ? []
+    : parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);
+  if (!parsed.success) {
+    return { valid: false, errors, completion: 0 };
   }
-
-  const profile = value as Partial<JobProfile>;
-  if (!profile.personal || typeof profile.personal !== "object") {
-    errors.push("Отсутствует раздел personal");
-  }
-  if (!profile.target || typeof profile.target !== "object") {
-    errors.push("Отсутствует раздел target");
-  }
-  if (!Array.isArray(profile.experience)) errors.push("experience должен быть массивом");
-  if (!Array.isArray(profile.education)) errors.push("education должен быть массивом");
-  if (!Array.isArray(profile.skills)) errors.push("skills должен быть массивом");
-  if (!Array.isArray(profile.languages)) errors.push("languages должен быть массивом");
+  const profile = parsed.data;
 
   const p = profile.personal;
   const target = profile.target;
@@ -52,6 +45,10 @@ export function validateProfile(value: unknown): ProfileValidation {
 }
 
 export function isJobProfile(value: unknown): value is JobProfile {
-  return validateProfile(value).valid;
+  return jobProfileSchema.safeParse(value).success;
+}
+
+export function parseJobProfile(value: unknown): JobProfile {
+  return jobProfileSchema.parse(value);
 }
 

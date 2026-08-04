@@ -3,12 +3,15 @@ import { resolve } from "node:path";
 import vm from "node:vm";
 import { describe, expect, it, vi } from "vitest";
 
-const backgroundSource = readFileSync(resolve("background-i06.js"), "utf8");
-const resumeText = readFileSync(resolve("resume.json"), "utf8");
+const backgroundSource = readFileSync(resolve("background.js"), "utf8");
+const resumeText = readFileSync(resolve("resume.example.json"), "utf8");
 
 function startBackground(initialStorage: Record<string, any>, fetchImpl: (url: string, init?: any) => Promise<any>) {
   const storage = { ...initialStorage };
   const listeners: Array<(message: any, sender?: any) => Promise<any>> = [];
+  let actionListener: ((tab: any) => Promise<void> | void) | null = null;
+  const createWindow = vi.fn(async () => ({ id: 77, type: "popup" }));
+  const updateWindow = vi.fn(async (id: number) => ({ id, type: "popup" }));
   const browser = {
     storage: {
       local: {
@@ -32,6 +35,25 @@ function startBackground(initialStorage: Record<string, any>, fetchImpl: (url: s
       },
       onInstalled: { addListener() {} },
     },
+    action: {
+      onClicked: {
+        addListener(listener: (tab: any) => Promise<void> | void) {
+          actionListener = listener;
+        },
+      },
+    },
+    windows: {
+      async get() { return { type: "normal" }; },
+      async getAll() { return []; },
+      create: createWindow,
+      update: updateWindow,
+      onRemoved: { addListener() {} },
+    },
+    tabs: {
+      async get(tabId: number) { return { id: tabId, url: "https://hh.ru/search/vacancy" }; },
+      async query() { return [{ id: 42, url: "https://hh.ru/search/vacancy" }]; },
+      onActivated: { addListener() {} },
+    },
   };
   vm.runInNewContext(backgroundSource, {
     browser,
@@ -45,14 +67,33 @@ function startBackground(initialStorage: Record<string, any>, fetchImpl: (url: s
     SyntaxError,
     JSON,
   });
-  return { storage, send: (message: any) => listeners[0](message, {}) };
+  return {
+    storage,
+    send: (message: any) => listeners[0]!(message, {}),
+    clickAction: (tab: any) => actionListener?.(tab),
+    createWindow,
+    updateWindow,
+  };
 }
 
 function resumeResponse() {
   return { ok: true, status: 200, text: async () => resumeText };
 }
 
-describe("active iteration 06 background script", () => {
+describe("active iteration 10 background script", () => {
+  it("opens one persistent panel window and focuses it on the next click", async () => {
+    const app = startBackground({}, async () => resumeResponse());
+
+    await app.clickAction({ id: 42, windowId: 1 });
+    expect(app.createWindow).toHaveBeenCalledWith(expect.objectContaining({
+      url: "moz-extension://test/popup.html",
+      type: "popup",
+    }));
+
+    await app.clickAction({ id: 42, windowId: 1 });
+    expect(app.createWindow).toHaveBeenCalledTimes(1);
+    expect(app.updateWindow).toHaveBeenCalledWith(77, { focused: true, state: "normal" });
+  });
   it("loads resume.json through runtime URL and migrates legacy settings", async () => {
     const fetchMock = vi.fn(async () => resumeResponse());
     const app = startBackground({
@@ -66,7 +107,7 @@ describe("active iteration 06 background script", () => {
 
     await expect(app.send({ type: "LJA_GET_SETTINGS" })).resolves.toMatchObject({
       ok: true,
-      buildId: "I06-20260802",
+      buildId: "I10-20260803",
       settings: {
         hasKey: true,
         deepseekModel: "deepseek-chat",
@@ -172,7 +213,7 @@ describe("active iteration 06 background script", () => {
       type: "LJA_GENERATE_COVER_LETTER",
       vacancy: { title: "PHP-разработчик", company: "Компания" },
     });
-    expect(result).toMatchObject({ ok: true, buildId: "I06-20260802" });
+    expect(result).toMatchObject({ ok: true, buildId: "I10-20260803" });
     expect(result.coverLetter).toBe(
       "Здравствуйте! Меня заинтересовала ваша вакансия.\n\n" +
       "Мой опыт PHP и интеграций соответствует задачам проекта.\n\n" +

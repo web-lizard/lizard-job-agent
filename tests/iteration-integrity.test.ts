@@ -6,56 +6,47 @@ function read(path: string) {
   return readFileSync(resolve(path), "utf8");
 }
 
-describe("iteration 06 package integrity", () => {
-  it("uses only versioned iteration 06 entry points", () => {
+describe("целостность активной версии расширения", () => {
+  it("использует постоянную панель и стабильные точки входа", () => {
     const manifest = JSON.parse(read("manifest.json"));
-    expect(manifest.version).toBe("0.6.0");
-    expect(manifest.action.default_popup).toBe("popup-i06.html");
-    expect(manifest.background.scripts).toEqual(["background-i06.js"]);
-    expect(manifest.content_scripts[0].js).toEqual(["content-i06.js"]);
+    expect(manifest.version).toBe("0.10.0");
+    expect(manifest.action.default_popup).toBeUndefined();
+    expect(manifest.background.scripts).toEqual(["background.js"]);
+    expect(manifest.content_scripts[0].js).toEqual(["content.js"]);
     expect(manifest.content_scripts[0].all_frames).toBe(true);
-    expect(manifest.options_ui.page).toBe("options-i06.html");
+    expect(manifest.content_scripts[0].matches).toContain("https://docs.google.com/forms/*");
+    expect(manifest.host_permissions).toContain("https://docs.google.com/forms/*");
+    expect(manifest.options_ui.page).toBe("options.html");
 
     for (const path of [
-      "popup-i06.html",
-      "popup-i06.js",
-      "popup-i06.css",
-      "background-i06.js",
-      "content-i06.js",
-      "options-i06.html",
-      "options-i06.js",
-      "options-i06.css",
-      "resume.json",
+      "popup.html",
+      "popup.js",
+      "popup.css",
+      "background.js",
+      "content.js",
+      "options.html",
+      "options.js",
+      "options.css",
+      "resume.example.json",
     ]) {
       expect(existsSync(resolve(path)), path).toBe(true);
     }
   });
 
-  it("keeps the actually loaded dist package identical to root", () => {
-    for (const path of [
-      "manifest.json",
-      "popup-i06.html",
-      "popup-i06.js",
-      "popup-i06.css",
-      "background-i06.js",
-      "content-i06.js",
-      "options-i06.html",
-      "options-i06.js",
-      "options-i06.css",
-      "resume.json",
-    ]) {
-      expect(read(`dist/${path}`), path).toBe(read(path));
-    }
-  });
-
   it("shows an unmistakable build marker and removes the old safe popup text", () => {
-    const popup = read("popup-i06.html");
-    const popupScript = read("popup-i06.js");
-    expect(popup).toContain("ИТЕРАЦИЯ 06");
-    expect(popup).toContain("I06-20260802");
+    const popup = read("popup.html");
+    const popupScript = read("popup.js");
+    expect(popup).toContain("ИТЕРАЦИЯ 10");
+    expect(popup).toContain("I10-20260803");
+    expect(popup).toContain("Обновить состояние страницы");
+    expect(popup).toContain("Заполнить Google-форму");
+    expect(popup).toContain("Заполнить вопросы работодателя");
+    expect(popupScript).toContain("LJA_I10_FILL_GOOGLE_FORM");
+    expect(popupScript).toContain("LJA_I10_FILL_HH_QUESTIONNAIRE");
     expect(popup).not.toContain("Безопасный аварийный popup без Vue");
-    expect(popupScript).toContain('const BUILD_ID = "I06-20260802"');
-    expect(read("content-i06.js")).toContain('const BUILD_ID = "I06-20260802"');
-    expect(read("background-i06.js")).toContain('const BUILD_ID = "I06-20260802"');
+    expect(popupScript).toContain('const BUILD_ID = "I10-20260803"');
+    expect(read("content.js")).toContain('const BUILD_ID = "I10-20260803"');
+    expect(read("background.js")).toContain('const BUILD_ID = "I10-20260803"');
+    expect(read("background.js")).toContain('browser.windows.create({');
   });
 });

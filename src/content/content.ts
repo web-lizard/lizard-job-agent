@@ -8,6 +8,8 @@ import {
   type ContentMessage,
 } from "../shared/messages";
 import { logger } from "../shared/logger";
+import { executeFillPlan } from "./fill-plan-executor";
+import { scanPage } from "./page-scanner";
 
 const style = document.createElement("style");
 style.textContent = `
@@ -30,6 +32,17 @@ browser.runtime.onMessage.addListener((message: unknown) => {
 
   if (contentMessage.type === MESSAGE_TYPES.DETECT_PAGE) {
     return adapter.detectPage();
+  }
+
+  if (contentMessage.type === MESSAGE_TYPES.DESCRIBE_PAGE) {
+    return scanPage();
+  }
+
+  if (contentMessage.type === MESSAGE_TYPES.EXECUTE_FILL_PLAN) {
+    return executeFillPlan(
+      contentMessage.plan,
+      contentMessage.doNotOverwrite,
+    );
   }
 
   if (contentMessage.type === MESSAGE_TYPES.FILL_PAGE) {

@@ -39,8 +39,10 @@
   "education": [
     {
       "institution": "Примерный университет",
+      "faculty": "",
       "specialization": "Информационные технологии",
       "degree": "Высшее",
+      "startYear": null,
       "graduationYear": 2012
     }
   ],
@@ -51,7 +53,11 @@
     }
   ],
   "links": {
-    "github": "https://github.com/example"
+    "github": "https://github.com/example",
+    "portfolio": "",
+    "website": "",
+    "telegram": "",
+    "linkedin": "",
+    "hh": ""
   }
 }
-

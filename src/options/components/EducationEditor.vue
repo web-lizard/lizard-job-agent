@@ -9,6 +9,7 @@ const add = (): void => {
     faculty: "",
     specialization: "",
     degree: "",
+    startYear: null,
     graduationYear: new Date().getFullYear(),
   });
 };
@@ -38,4 +39,3 @@ const add = (): void => {
     <div v-else class="empty-state">Образование пока не добавлено.</div>
   </section>
 </template>
-

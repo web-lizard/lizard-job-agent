@@ -3,29 +3,36 @@ import { resolve } from "node:path";
 import { JSDOM } from "jsdom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const popupHtml = readFileSync(resolve("popup-i06.html"), "utf8");
-const popupSource = readFileSync(resolve("popup-i06.js"), "utf8");
+const popupHtml = readFileSync(resolve("popup.html"), "utf8");
+const popupSource = readFileSync(resolve("popup.js"), "utf8");
 const openDoms: JSDOM[] = [];
 
 afterEach(() => {
   while (openDoms.length) openDoms.pop()?.window.close();
 });
 
-describe("iteration 06 popup frame selection", () => {
+describe("iteration 10 persistent panel frame selection", () => {
   it("selects the frame that contains the real message editor", async () => {
-    const dom = new JSDOM(popupHtml, { runScripts: "outside-only", url: "moz-extension://test/popup-i06.html" });
+    const dom = new JSDOM(popupHtml, { runScripts: "outside-only", url: "moz-extension://test/popup.html" });
     openDoms.push(dom);
     let preparedFrameId = -1;
     let openedSearchUrl = "";
 
     const browser = {
       runtime: {
-        getManifest: () => ({ version: "0.6.0" }),
+        getManifest: () => ({ version: "0.10.0" }),
         async sendMessage(message: any) {
+          if (message.type === "LJA_GET_TARGET_TAB") {
+            return {
+              ok: true,
+              buildId: "I10-20260803",
+              tab: { id: 42, url: "https://hh.ru/search/vacancy" },
+            };
+          }
           if (message.type === "LJA_GET_SETTINGS") {
             return {
               ok: true,
-              buildId: "I06-20260802",
+              buildId: "I10-20260803",
               settings: {
                 hasKey: true,
                 deepseekModel: "deepseek-chat",
@@ -36,9 +43,9 @@ describe("iteration 06 popup frame selection", () => {
             };
           }
           if (message.type === "LJA_GET_RESUME") {
-            return { ok: true, buildId: "I06-20260802" };
+            return { ok: true, buildId: "I10-20260803" };
           }
-          return { ok: false, buildId: "I06-20260802", error: "unexpected" };
+          return { ok: false, buildId: "I10-20260803", error: "unexpected" };
         },
         openOptionsPage: vi.fn(),
       },
@@ -47,11 +54,11 @@ describe("iteration 06 popup frame selection", () => {
           return [{ id: 42, url: "https://hh.ru/search/vacancy" }];
         },
         async sendMessage(_tabId: number, message: any, options: { frameId: number }) {
-          if (message.type === "LJA_I06_DESCRIBE") {
+          if (message.type === "LJA_I10_DESCRIBE") {
             return options.frameId === 7
               ? {
                   ok: true,
-                  buildId: "I06-20260802",
+                  buildId: "I10-20260803",
                   chatFound: true,
                   messageInputFound: true,
                   messagesCount: 3,
@@ -60,18 +67,18 @@ describe("iteration 06 popup frame selection", () => {
                 }
               : {
                   ok: true,
-                  buildId: "I06-20260802",
+                  buildId: "I10-20260803",
                   chatFound: true,
                   messageInputFound: false,
                   messagesCount: 2,
                   pageType: "employer-chat",
                 };
           }
-          if (message.type === "LJA_I06_PREPARE_REPLY") {
+          if (message.type === "LJA_I10_PREPARE_REPLY") {
             preparedFrameId = options.frameId;
             return {
               ok: true,
-              buildId: "I06-20260802",
+              buildId: "I10-20260803",
               chatFound: true,
               messageInputFound: true,
               inserted: true,
@@ -84,6 +91,7 @@ describe("iteration 06 popup frame selection", () => {
           openedSearchUrl = url;
           return { id: 43, url };
         },
+        onActivated: { addListener() {} },
       },
       scripting: {
         async executeScript() {

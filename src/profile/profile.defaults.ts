@@ -5,18 +5,18 @@ export const emptyProfile = (): JobProfile => ({
     firstName: "",
     lastName: "",
     middleName: "",
-    birthDate: "",
+    birthDate: null,
     email: "",
     phone: "",
     city: "",
     citizenship: "",
-    relocation: false,
-    remoteWork: true,
-    businessTrips: false,
+    relocation: null,
+    remoteWork: null,
+    businessTrips: null,
   },
   target: {
     position: "",
-    salary: undefined,
+    salary: null,
     currency: "RUB",
     employmentTypes: [],
     workFormats: [],
@@ -26,10 +26,16 @@ export const emptyProfile = (): JobProfile => ({
   experience: [],
   education: [],
   languages: [],
-  links: {},
+  links: {
+    github: "",
+    portfolio: "",
+    website: "",
+    telegram: "",
+    linkedin: "",
+    hh: "",
+  },
 });
 
 export const defaultPreferences: ExtensionPreferences = {
   doNotOverwrite: true,
 };
-
